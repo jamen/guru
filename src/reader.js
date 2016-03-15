@@ -43,14 +43,7 @@ export default class Reader extends EventEmitter {
   backward(amount = 1) { for (let i = 0; i < amount; i++) this.previous(); }
 
   mini() {
-    return new Reader(this.lookahead(this.source.length - this.pos - 1));
-  }
-
-  _ord(...items) { return items.slice().sort((a, b) => a - b); }
-
-  // Checks if point is in a the valid range.
-  validRange(point) {
-    if ((point >= this.source.length) || (point < 0)) return false;
-    return true;
+    const FlexibleReader = this.constructor;
+    return new FlexibleReader(this.lookahead(this.source.length - this.pos - 1));
   }
 }
