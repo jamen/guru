@@ -1,79 +1,56 @@
 import EventEmitter from 'events';
 
 export default class Reader extends EventEmitter {
-  constructor(source, start = 0) {
+  constructor(source = [], meta = {}) {
     super();
     this.source = source;
-    this.pos = start;
-
-    // Extra.
-    this.line = 1;
-    this.column = 1;
+    this.meta = meta;
+    this.pos = 0;
   }
 
-  // Get bytes starting from position
+  grab(p1, p2) { return this.source.slice(p1, p2); }
+
   lookahead(amount = 1) {
-    return this.source.slice(this.pos, this.pos + amount).toString();
+    return this.grab(this.pos, this.pos + amount);
   }
-
-  // Get bytes to the right, starting from position.
-  lookback(amount = 1) {
-    return this.source.slice(this.pos - amount, this.pos - 1).toString();
-  }
-
   current() { return this.lookahead(); }
-  previous() { return this.lookback(); }
-  right() { return this.lookahead(-this.pos - 1); }
-  left() { return this.lookback(this.pos); }
-  peep() { return new Reader(this.right()); }
 
-  // Test bytes against current
-  is(chars = []) {
-    if (!Array.isArray(chars)) return this.current() === chars;
-    return !~chars.indexOf(this.current());
+  lookback(amount = 1) {
+    return this.grab(this.pos - amount, this.pos);
   }
 
-  // Line
-  moved(opts = {}) {
-    if (this.is('\n') || (this.is('\r') && this.previous() !== '\n')) {
-      this.line = this.line + (opts.amount || 1);
-      this.column = 0;
+  next() {
+    if (this.pos >= this.source.length - 1) {
+      this.emit('edge', 'end');
+      return;
     }
-    this.column++;
 
-    if (this.pos >= this.source.length) {
-      this.emit('end');
-    }
+    this.emit('move', 'forward');
+    this.pos++;
   }
 
-  // Move one byte forward
-  forward() {
-    if (this.pos <= this.source.length - 1) {
-      this.pos++;
-      this.moved();
+  previous() {
+    if (this.pos - 1 < 0) {
+      this.emit('edge', 'start');
+      return;
     }
-    return this;
+
+    this.emit('move', 'backward');
+    this.pos--;
   }
 
-  // Move one byte backward.
-  backward() {
-    if (this.pos) {
-      this.pos--;
-      this.moved({ amount: -1 });
-    }
-    return this;
+  forward(amount = 1) { for (let i = 0; i < amount; i++) this.next(); }
+  backward(amount = 1) { for (let i = 0; i < amount; i++) this.previous(); }
+
+  mini() {
+    return new Reader(this.lookahead(this.source.length - this.pos - 1));
   }
 
-  go(direction, amount = 1) {
-    if (direction !== 'forth' && direction !== 'back') return null;
-    const beginning = this.pos;
-    if (typeof amount === 'number') {
-      for (let i = 0; i < amount; i++) this[direction]();
-    } else if (typeof amount === 'string') {
-      while (!this.lookahead(amount)) this[direction]();
-    } else if (amount instanceof RegExp) {
-      while (!amount.test(this.current())) this[direction]();
-    }
-    return this.lookback(beginning);
+  _ord(...items) { return items.slice().sort((a, b) => a - b); }
+
+  // Checks if point is in a the valid range.
+  validRange(point) {
+    if ((point >= this.source.length) || (point < 0)) return false;
+    return true;
   }
 }

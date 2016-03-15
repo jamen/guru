@@ -9,7 +9,7 @@
     "url": "https://github.com/jamen/guru"
   },
   "scripts": {
-    "test": "gulp; ava test",
+    "test": "gulp; ava -v test",
     "build": "gulp",
     "prepublish": "gulp"
   },
