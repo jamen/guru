@@ -19,6 +19,11 @@ export default class Reader extends EventEmitter {
     return this.grab(this.pos - amount, this.pos);
   }
 
+  record() {
+    const beginning = this.pos;
+    return () => this.grab(...([beginning, this.pos].sort((a, b) => a - b)));
+  }
+
   next() {
     if (this.pos + 2 > this.source.length) {
       this.emit('edge', 'end');
@@ -39,11 +44,50 @@ export default class Reader extends EventEmitter {
     this.pos--;
   }
 
-  forward(amount = 1) { for (let i = 0; i < amount; i++) this.next(); }
-  backward(amount = 1) { for (let i = 0; i < amount; i++) this.previous(); }
+  forward(amount = 1) {
+    switch (amount.constructor) {
+      case Number:
+        return this.forward(i => amount > i);
+      case RegExp:
+        return this.forward(() => !amount.test(this.current()));
+      default:
+        return this.forward(() => amount !== this.current());
+      case Function:
+        return this.until(i => {
+          if (!amount(i)) return false;
+          this.next();
+          return true;
+        });
+    }
+  }
+
+  backward(amount = 1) {
+    switch (amount.constructor) {
+      case Number:
+        return this.backward(i => amount > i);
+      case RegExp:
+        return this.backward(() => !amount.test(this.current()));
+      default:
+        return this.backward(() => amount !== this.current());
+      case Function:
+        return this.until(i => {
+          if (!amount(i)) return false;
+          this.previous();
+          return true;
+        });
+    }
+  }
 
   mini() {
-    const FlexibleReader = this.constructor;
-    return new FlexibleReader(this.lookahead(this.source.length - this.pos - 1));
+    const FuzzyReader = this.constructor;
+    return new FuzzyReader(this.lookahead(this.source.length - this.pos - 1));
+  }
+
+  until(callback) {
+    const capture = this.record();
+    let i = 0;
+    let keepalive = null;
+    do { keepalive = callback(i++); } while (keepalive);
+    return capture();
   }
 }

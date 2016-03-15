@@ -42,3 +42,31 @@ test.cb('edge detection', t => {
 
   foo.forward(12);
 });
+
+test('fixed capturing', t => {
+  const foo = new Reader(sample);
+
+  // Forward capturing
+  const forecap = foo.forward(5);
+  t.is(forecap, 'Hello');
+
+  // Backward capturing
+  const backcap = foo.backward(3);
+  t.is(backcap, 'llo');
+});
+
+test('test-based capturing', t => {
+  const foo = new Reader(sample);
+
+  // String-based
+  const spcap = foo.forward(' ');
+  t.is(spcap, 'Hello');
+
+  // Regex-based
+  const rxcap = foo.forward(/\!/);
+  t.is(rxcap, ' world');
+
+  // Custom test
+  const csmcap = foo.backward(i => i < 3);
+  t.is(csmcap, 'rld');
+});
