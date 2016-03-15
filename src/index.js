@@ -1,4 +1,5 @@
-import Grammar from './grammar';
+import Reader from './reader';
 import Token from './token';
 import Parser from './parser';
-export { Grammar, Token, Parser };
+import BufferReader from './buffer-reader';
+export default { Reader, Token, Parser, BufferReader };
