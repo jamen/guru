@@ -9,7 +9,7 @@
     "url": "https://github.com/jamen/guru"
   },
   "scripts": {
-    "test": "gulp; ava -v test",
+    "test": "gulp; ava -t | faucet",
     "build": "gulp",
     "prepublish": "gulp"
   },
@@ -25,6 +25,7 @@
     "del": "^2.2.0",
     "eslint": "^2.3.0",
     "eslint-config-airbnb": "^6.1.0",
+    "faucet": "0.0.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^2.0.0"
