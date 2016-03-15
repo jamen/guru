@@ -1,4 +1,5 @@
 import Reader from './reader';
+import Token from './token';
 
 export default class BufferReader extends Reader {
   constructor(...args) {
@@ -19,5 +20,9 @@ export default class BufferReader extends Reader {
       this.line += direction === 'forward' ? 1 : -1;
       this.column = 1;
     }
+  }
+
+  token(...params) {
+    this.push(new Token(...params));
   }
 }

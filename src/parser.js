@@ -1,13 +1,13 @@
 import BufferReader from './buffer-reader';
 import Map from 'es6-map';
-import Token from './token';
 import Reader from './reader';
+import Token from './token';
 
 export default class Parser {
-  constructor(rules = []) {
+  constructor(rules = [], output = []) {
     this.rules = rules;
     this._stash = new Map();
-    this.tokens = [];
+    this.output = output;
     this.keepalive = false;
   }
 
@@ -36,7 +36,7 @@ export default class Parser {
           break;
         }
       }
-      resolve([this.tokens, this.stash()]);
+      resolve([this.output, this.stash()]);
     });
   }
 
@@ -58,7 +58,6 @@ export default class Parser {
     return this;
   }
 
-  token(...params) {
-    this.tokens.push(new Token(...params));
-  }
+  push(...params) { return this.output.push(...params); }
+  token(...params) { return this.push(new Token(...params)); }
 }
