@@ -1,11 +1,9 @@
 import BufferReader from './buffer-reader';
 import Map from 'es6-map';
 import Token from './token';
-import EventEmitter from 'events';
 
-export default class Parser extends EventEmitter {
+export default class Parser {
   constructor(rules = []) {
-    super();
     this.rules = rules;
     this._stash = new Map();
     this.tokens = [];
@@ -23,12 +21,21 @@ export default class Parser extends EventEmitter {
       if (location === 'end') this.keepalive = false;
     });
 
-    return new Promise(resolve => {
-      let i = 0;
+    return new Promise((resolve, reject) => {
       while (this.keepalive) {
-        if (i >= this.rules.length) i = 0;
-        this.rules[i].call(this, reader);
-        i++;
+        const sp = reader.pos;
+        for (const rule of this.rules) {
+          rule.call(this, reader);
+        }
+
+        if (sp === reader.pos) {
+          reject(new Error(
+            'No rules could process input',
+            reader,
+            typeof reader.line !== 'undefined' ? reader.line : ''
+          ));
+          break;
+        }
       }
       resolve([this.tokens, this.stash()]);
     });
