@@ -1,6 +1,7 @@
 import BufferReader from './buffer-reader';
 import Map from 'es6-map';
 import Token from './token';
+import Reader from './reader';
 
 export default class Parser {
   constructor(rules = []) {
@@ -14,6 +15,8 @@ export default class Parser {
     let reader = input;
     if (input instanceof Buffer || typeof input === 'string') {
       reader = new BufferReader(input);
+    } else {
+      reader = new Reader(input);
     }
 
     this.keepalive = true;
@@ -29,11 +32,7 @@ export default class Parser {
         }
 
         if (sp === reader.pos) {
-          reject(new Error(
-            'No rules could process input',
-            reader,
-            typeof reader.line !== 'undefined' ? reader.line : ''
-          ));
+          reject(new Error('No rules could process input'));
           break;
         }
       }
