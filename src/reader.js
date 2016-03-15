@@ -25,23 +25,23 @@ export default class Reader extends EventEmitter {
   }
 
   next() {
+    this.emit('move', 'forward');
+    this.pos++;
+
     if (this.pos + 2 > this.source.length) {
       this.emit('edge', 'end');
       return;
     }
-
-    this.emit('move', 'forward');
-    this.pos++;
   }
 
   previous() {
+    this.emit('move', 'backward');
+    this.pos--;
+
     if (this.pos - 1 < 0) {
       this.emit('edge', 'start');
       return;
     }
-
-    this.emit('move', 'backward');
-    this.pos--;
   }
 
   forward(amount = 1) {
@@ -89,7 +89,7 @@ export default class Reader extends EventEmitter {
     const capture = this.record();
     let i = 0;
     let keepalive = null;
-    do { keepalive = callback(i++); } while (keepalive);
+    do { keepalive = callback(i++); } while (keepalive && this.pos <= this.source.length - 1);
     return capture();
   }
 
