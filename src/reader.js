@@ -20,7 +20,7 @@ export default class Reader extends EventEmitter {
   }
 
   next() {
-    if (this.pos >= this.source.length - 1) {
+    if (this.pos + 2 > this.source.length) {
       this.emit('edge', 'end');
       return;
     }
