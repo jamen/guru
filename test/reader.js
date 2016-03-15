@@ -8,13 +8,20 @@ test('grabbing', t => {
   t.is(foo.grab(6, 11), 'world');
 });
 
-test('moving', t => {
+test.cb('moving', t => {
   const foo = new Reader(sample);
   t.is(foo.current(), 'H');
   foo.forward(2);
   t.is(foo.current(), 'l');
   foo.forward(2);
   t.is(foo.current(), 'o');
+
+  foo.on('move', direction => {
+    t.is(direction, 'backward');
+    t.end();
+  });
+
+  foo.previous();
 });
 
 test('looking ahead and back', t => {
@@ -25,10 +32,13 @@ test('looking ahead and back', t => {
   t.is(foo.current(), 'o');
 });
 
-test('validate point range', t => {
+test.cb('edge detection', t => {
   const foo = new Reader(sample);
-  t.true(foo.validRange(0));
-  t.true(foo.validRange(11));
-  t.false(foo.validRange(-1));
-  t.false(foo.validRange(12));
+
+  foo.on('edge', location => {
+    t.is(location, 'end');
+    t.end();
+  });
+
+  foo.forward(12);
 });
