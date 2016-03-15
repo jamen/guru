@@ -7,7 +7,7 @@ export default class Parser extends EventEmitter {
   constructor(rules = []) {
     super();
     this.rules = rules;
-    this.stash = new Map();
+    this._stash = new Map();
     this.tokens = [];
     this.keepalive = false;
   }
@@ -30,9 +30,22 @@ export default class Parser extends EventEmitter {
         this.rules[i].call(this, reader);
         i++;
       }
-      resolve([this.tokens, this.stash]);
+      resolve([this.tokens, this.stash()]);
     });
   }
+
+  stash(...args) {
+    switch (args.length) {
+      case 1:
+        return this._stash.get(...args);
+      case 2:
+        return this._stash.set(...args);
+      default:
+        return this._stash;
+    }
+  }
+
+  trash(name) { return this._stash.delete(name); }
 
   use(rules) {
     this.rules = this.rules.concat(rules);
