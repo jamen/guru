@@ -90,4 +90,9 @@ export default class Reader extends EventEmitter {
     do { keepalive = callback(i++); } while (keepalive);
     return capture();
   }
+
+  rtl() {
+    this.source = this.source.reverse();
+    return this;
+  }
 }
