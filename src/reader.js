@@ -78,7 +78,7 @@ export default class Reader extends EventEmitter {
     }
   }
 
-  mini() {
+  inspect() {
     const FuzzyReader = this.constructor;
     return new FuzzyReader(this.lookahead(this.source.length - this.pos - 1));
   }
