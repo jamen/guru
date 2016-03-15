@@ -49,7 +49,7 @@ export default class Reader extends EventEmitter {
       case Number:
         return this.forward(i => amount > i);
       case RegExp:
-        return this.forward(() => !amount.test(this.current()));
+        return this.forward(() => amount.test(this.current()));
       default:
         return this.forward(() => amount !== this.current());
       case Function:
@@ -66,7 +66,7 @@ export default class Reader extends EventEmitter {
       case Number:
         return this.backward(i => amount > i);
       case RegExp:
-        return this.backward(() => !amount.test(this.current()));
+        return this.backward(() => amount.test(this.current()));
       default:
         return this.backward(() => amount !== this.current());
       case Function:
@@ -78,9 +78,11 @@ export default class Reader extends EventEmitter {
     }
   }
 
-  inspect() {
+  clone() {
     const FuzzyReader = this.constructor;
-    return new FuzzyReader(this.lookahead(this.source.length - this.pos - 1));
+    const copy = new FuzzyReader(this.source);
+    copy.forward(this.pos);
+    return copy;
   }
 
   until(callback) {
