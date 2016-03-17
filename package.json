@@ -2,7 +2,7 @@
   "name": "guru",
   "author": "Jamen Marzonie",
   "version": "0.0.0",
-  "description": "Pluggable Promise-based parser.",
+  "description": "A fancy, general-purpose, modular, and reusable parser.",
   "main": "lib",
   "repository": {
     "type": "git",
