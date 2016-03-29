@@ -15,28 +15,28 @@ export default class Parser {
 
   parse(input) {
     this.on = true;
-    const reader = new (this.reader || BufferReader)(input);
-    const writer = new (this.writer || Writer);
+    let reader = new (this.reader || BufferReader)(input);
+    let writer = new (this.writer || Writer);
 
     // Kill switch
     reader.on('edge', location => {
       if (location === 'end') this.on = false;
     });
 
-    return this._ruleLoop(reader, writer);
+    function loop(parser) {
+      return Promise.resolve(parser.rules)
+      .then(each(rule => ({ reader, writer } = rule.call(parser, reader, writer))))
+      .then(() => {
+        if (parser.on) return loop(parser);
+        return { result: writer.source, stash: parser.stash };
+      });
+    }
+
+    return loop(this);
   }
 
   use(rules) {
     this.rules = this.rules.concat(rules);
     return this;
-  }
-
-  _ruleLoop(reader, writer) {
-    return Promise.resolve(this.rules)
-    .then(each(rule => rule.call(this, reader, writer)))
-    .then(() => {
-      if (this.on) return this._ruleLoop(reader, writer);
-      return { result: writer.source, stash: this.stash };
-    });
   }
 }

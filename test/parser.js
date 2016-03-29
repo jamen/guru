@@ -16,7 +16,7 @@ test('parsing', t => {
       reader.next();
       writer.write({ name: 'foo', value: 0 });
     }
-    return reader;
+    return { reader, writer };
   }
 
   function bar(reader, writer) {
@@ -24,7 +24,7 @@ test('parsing', t => {
       reader.next();
       writer.write({ name: 'bar', value: 1 });
     }
-    return reader;
+    return { reader, writer };
   }
 
   const foobar = new Parser([foo, bar]);
