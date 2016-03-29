@@ -1,8 +1,8 @@
 import Reader from './reader';
 
 export default class ASTReader extends Reader {
-  inspect() {
-    return new ASTReader(this.current().children, Object.assign({ parent: this }, this.meta));
+  open(meta = this.meta) {
+    return new ASTReader(this.current().children, Object.assign({ parent: this }, meta));
   }
 
   leave() {
