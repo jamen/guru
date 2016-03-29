@@ -80,10 +80,13 @@ test('ast', t => {
   t.same(regular, ['a', 'b']);
 
   // Inspect AST tree and read from it, then try zooming out and continue reading.
-  const child = foo.inspect();
+  const child = foo.open({ qux: true });
   const childval = child.current();
   foo.forward(1);
   const afterval = foo.current();
   t.is(childval, 'c');
   t.is(afterval, 'd');
+
+  // Test custom meta passing
+  t.true(child.meta.qux);
 });
