@@ -63,7 +63,7 @@ test('test-based capturing', t => {
   t.is(spcap, 'Hello');
 
   // Regex-based
-  const rxcap = foo.forward(/\!/);
+  const rxcap = foo.forward(/[^!]/);
   t.is(rxcap, ' world');
 
   // Custom test
