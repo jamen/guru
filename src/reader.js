@@ -13,7 +13,7 @@ export default class Reader extends EventEmitter {
   lookahead(amount = 1) {
     return this.grab(this.pos, this.pos + amount);
   }
-  current() { return this.lookahead(); }
+  current() { return this.lookahead()[0]; }
 
   lookback(amount = 1) {
     return this.grab(this.pos - amount, this.pos);

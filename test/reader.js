@@ -1,5 +1,6 @@
 import test from 'ava';
 import Reader from '../lib/buffer-reader';
+import ASTReader from '../lib/ast-reader';
 
 const sample = new Buffer('Hello world!');
 
@@ -69,4 +70,20 @@ test('test-based capturing', t => {
   // Custom test
   const csmcap = foo.backward(i => i < 3);
   t.is(csmcap, 'rld');
+});
+
+test('ast', t => {
+  const foo = new ASTReader(['a', 'b', { children: ['c'] }, 'd']);
+
+  // Operates normally as a reader
+  const regular = foo.forward(2);
+  t.same(regular, ['a', 'b']);
+
+  // Inspect AST tree and read from it, then try zooming out and continue reading.
+  const child = foo.inspect();
+  const childval = child.current();
+  foo.forward(1);
+  const afterval = foo.current();
+  t.is(childval, 'c');
+  t.is(afterval, 'd');
 });
