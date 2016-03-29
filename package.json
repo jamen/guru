@@ -1,7 +1,7 @@
 {
   "name": "guru",
   "author": "Jamen Marzonie",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A fancy, general-purpose, modular, and reusable parser.",
   "main": "lib",
   "repository": {
