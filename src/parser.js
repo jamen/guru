@@ -33,7 +33,7 @@ export default class Parser {
 
   _ruleLoop(reader, writer) {
     return Promise.resolve(this.rules)
-    .then(each(rule => rule(reader, writer)))
+    .then(each(rule => rule.call(this, reader, writer)))
     .then(() => {
       if (this.on) return this._ruleLoop(reader, writer);
       return { result: writer.source, stash: this.stash };
