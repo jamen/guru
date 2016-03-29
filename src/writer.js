@@ -11,9 +11,9 @@ export default class Writer {
     return this;
   }
 
-  nest(options) {
+  nest(options, meta = {}) {
     const tree = Object.assign({}, options);
-    const child = new Writer({ parent: this });
+    const child = new Writer(Object.assign({ parent: this }, meta));
     tree.children = child.source;
     this.write(tree);
     return child;
