@@ -1,63 +1,42 @@
-import BufferReader from './buffer-reader';
 import Map from 'es6-map';
-import Reader from './reader';
-import Token from './token';
+import BufferReader from './buffer-reader';
+import Writer from './writer';
+import each from 'promise-each';
 
 export default class Parser {
-  constructor(rules = [], output = []) {
+  constructor(rules = [], options = {}) {
     this.rules = rules;
-    this._stash = new Map();
-    this.output = output;
-    this.keepalive = false;
+    this.stash = new Map();
+    this.on = false;
+    this.meta = options.meta;
+    this.reader = options.reader;
+    this.writer = options.writer;
   }
 
   parse(input) {
-    let reader = input;
-    if (input instanceof Buffer || typeof input === 'string') {
-      reader = new BufferReader(input);
-    } else {
-      reader = new Reader(input);
-    }
+    this.on = true;
+    const reader = new (this.reader || BufferReader)(input);
+    const writer = new (this.writer || Writer);
 
-    this.keepalive = true;
+    // Kill switch
     reader.on('edge', location => {
-      if (location === 'end') this.keepalive = false;
+      if (location === 'end') this.on = false;
     });
 
-    return new Promise((resolve, reject) => {
-      while (this.keepalive) {
-        const sp = reader.pos;
-        for (const rule of this.rules) {
-          rule.call(this, reader);
-        }
-
-        if (sp === reader.pos) {
-          reject(new Error('No rules could process input'));
-          break;
-        }
-      }
-      resolve([this.output, this.stash()]);
-    });
+    return this._ruleLoop(reader, writer);
   }
-
-  stash(...args) {
-    switch (args.length) {
-      case 1:
-        return this._stash.get(...args);
-      case 2:
-        return this._stash.set(...args);
-      default:
-        return this._stash;
-    }
-  }
-
-  trash(name) { return this._stash.delete(name); }
 
   use(rules) {
     this.rules = this.rules.concat(rules);
     return this;
   }
 
-  push(...params) { return this.output.push(...params); }
-  token(...params) { return this.push(new Token(...params)); }
+  _ruleLoop(reader, writer) {
+    return Promise.resolve(this.rules)
+    .then(each(rule => rule(reader, writer)))
+    .then(() => {
+      if (this.on) return this._ruleLoop(reader, writer);
+      return { result: writer.source, stash: this.stash };
+    });
+  }
 }

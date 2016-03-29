@@ -28,7 +28,7 @@ export default class Reader extends EventEmitter {
     this.emit('move', 'forward');
     this.pos++;
 
-    if (this.pos + 2 > this.source.length) {
+    if (this.pos + 1 > this.source.length) {
       this.emit('edge', 'end');
       return;
     }
@@ -38,7 +38,7 @@ export default class Reader extends EventEmitter {
     this.emit('move', 'backward');
     this.pos--;
 
-    if (this.pos - 1 < 0) {
+    if (this.pos < 0) {
       this.emit('edge', 'start');
       return;
     }

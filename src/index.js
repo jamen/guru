@@ -1,5 +1,5 @@
 import Reader from './reader';
-import Token from './token';
 import Parser from './parser';
+import Writer from './writer';
 import BufferReader from './buffer-reader';
-export default { Reader, Token, Parser, BufferReader };
+export default { Reader, Writer, Parser, BufferReader };
